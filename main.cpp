@@ -1,4 +1,4 @@
-﻿#define WrongInput wcout << L"Неверная команда" << endl;
+﻿#define WrongInput wcout << L"Неверная команда" << endl
 
 /*колекция лабораторных работ по Алгоритмам и структурам данных
  + -> выполнено
@@ -92,6 +92,7 @@ int main()
     int n, lab_num;
     wcout << L"Введите длинну масива:" ;
     wcin >> n;
+    std::random_device rd;
     std::uniform_int_distribution<int> dist(1,n);
 
     int mas[n];
@@ -115,17 +116,17 @@ int main()
 
             while (step > 0){
                 for (int i =0; i + step < n; i++)
-                    if (v[i] > v[i+step]){
-                        temp = v[i+step];
-                        v[i+step] = v[i];
-                        v[i] = temp;
+                    if (mas[i] > mas[i + step]){
+                        temp = mas[i + step];
+                        mas[i + step] = mas[i];
+                        mas[i] = temp;
                     }
                 step /= 1.3; //один раз не сработало, почему не понятно
             }
 
             wcout << L"Сортированный масив:" <<endl;
             for(int i = 0; i <n;i++){
-                wcout << v[i] << " ";
+                wcout << mas[i] << " ";
             }
             break;
         }
@@ -133,12 +134,12 @@ int main()
             wcout << L"Вставками" << endl;
 
             for(int i=1;i<n;i++)
-                for(int j=i;j>0 && v[j-1]>v[j];j--)
-                    swap(v[j-1],v[j]);
+                for(int j=i;j>0 && mas[j - 1] > mas[j]; j--)
+                    swap(mas[j - 1], mas[j]);
 
             wcout << L"Сортированный масив:" <<endl;
             for(int i = 0; i <n;i++)
-                wcout << v[i] << " ";
+                wcout << mas[i] << " ";
             break;
         }
         case(6): {
@@ -148,16 +149,16 @@ int main()
             for (int i=0; i<n-1; i++){
                 mini=i;
                 for (int j=i+1; j<n; j++){
-                    if (v[mini]>v[j])
+                    if (mas[mini] > mas[j])
                         mini=j;
                 }
                 if (mini!=i)
-                    swap(v[i],v[mini]);
+                    swap(mas[i], mas[mini]);
             }
 
             wcout << L"Сортированный масив:" <<endl;
             for(int i = 0; i <n;i++)
-                wcout << v[i] << " ";
+                wcout << mas[i] << " ";
             break;
         }
         case(7): {
@@ -167,8 +168,8 @@ int main()
             if(n >4000){
                 for (int s = n / 2; s > 0; s /= 2)
                     for (int i = s; i != n; ++i)
-                        for (int j = i - s; j >= 0 && v[j] > v[j + s]; j -= s)
-                            swap(v[j], v[j + s]);
+                        for (int j = i - s; j >= 0 && mas[j] > mas[j + s]; j -= s)
+                            swap(mas[j], mas[j + s]);
             }
             else {
                 int step = d.size()-1;
@@ -177,12 +178,12 @@ int main()
                 for (; step != 0; step--) {
                     for (int i = step; i != n; ++i)
                         for (int j = i - step; j >= 0; j -= step)
-                            if (v[j] > v[j + step]) swap(v[j], v[j + step]);
+                            if (mas[j] > mas[j + step]) swap(mas[j], mas[j + step]);
                 }
             }
             wcout << L"Сортированный масив:" <<endl;
             for(int i = 0; i <n;i++)
-                wcout << v[i] << " ";
+                wcout << mas[i] << " ";
             break;
         }
         case(8):{
