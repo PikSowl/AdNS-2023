@@ -5,11 +5,11 @@
  №1 + Задача о скобках
  №2   Задача об арифметическом выражении
  №3   Задача о простых множителях
- №4 + Сортировка методом прочесывания
+ №4 + Методом прочесывания
  №5 + Вставками
  №6 + Посредством выбора
- №7   Шелла
- №8   Поразрядная
+ №7 + Шелла
+ №8 + Поразрядная
  №9   Пирамидальная (heap sort)
  №10  Слиянием
  №11  Быстрая
@@ -24,7 +24,6 @@
 #include <vector>
 #include <algorithm>
 #include <random>
-#include <cmath>
 #include <io.h>
 #include <fcntl.h>
 
@@ -35,193 +34,84 @@ using std::endl;
 using std::string;
 using std::vector;
 
-
-struct Dot {
-    double x;
-    double y;
-    double z;
-};
-
-class Vector {
-
-private:
-    Dot XYZ = {0, 0, 0};
-
-public:
-    Vector(Dot a, Dot b){
-        XYZ.x = b.x - a.x;
-        XYZ.y = b.y - a.y;
-        XYZ.z = b.z - a.z;
+namespace eight {
+    int getMax(int m[], int n) {
+        int max = m[0];
+        for (int i = 1; i < n; i++)
+            if (m[i] > max)
+                max = m[i];
+        return max;
     }
 
-    Vector(){}
-    Vector(double i, double j, double k){
-        XYZ = {i,j,k};
-    }
-    Vector(const Vector& other){
-        XYZ = other.XYZ;
-    }
-    double GetX(){
-        return XYZ.x;
-    }
-    double GetY(){
-        return XYZ.y;
-    }
-    double GetZ(){
-        return XYZ.z;
-    }
-    double Len(){
-        double len = pow(pow(XYZ.x, 2) + pow(XYZ.y, 2) + pow(XYZ.z, 2), 0.5);
-        return len;
+    void countingSort(int m[], int n, int place) {
+        const int iLen = 10;
+        int output[n];
+        int count[iLen];
+
+        for (int i = 0; i < iLen; ++i)
+            count[i] = 0;
+
+        for (int i = 0; i < n; i++)
+            count[(m[i] / place) % 10]++;
+        for (int i =0; i < iLen; i++)
+            wcout << count[i] << " ";
+        wcout << endl;
+
+        for (int i = 1; i < iLen; i++)
+            count[i] += count[i - 1];
+        for (int i =0; i < iLen; i++)
+            wcout << count[i] << " ";
+        wcout << endl;
+
+        for (int i = n - 1; i >= 0; i--) {
+            output[count[(m[i] / place) % 10] - 1] = m[i];
+            count[(m[i] / place) % 10]--;
+        }
+
+        wcout << L"Проход" << endl;
+        for (int i =0; i < n; i++)
+            wcout << output[i] << " ";
+        wcout << endl;
+
+        for (int i = 0; i < n; i++)
+            m[i] = output[i];
     }
 
-    Vector& operator = (const Vector& other){
-        XYZ = other.XYZ;
-        return *this;
-    }
-    Vector& operator += (const Vector& other)
-    {
-        XYZ.x += other.XYZ.x;
-        XYZ.y += other.XYZ.y;
-        XYZ.z += other.XYZ.z;
-        return *this;
-    }
-    Vector operator + (const Vector& other){
-        Vector temp = *this;
-        temp += other;
-        return temp;
-    }
-    Vector& operator -= (const Vector& other){
-        XYZ.x -= other.XYZ.x;
-        XYZ.y -= other.XYZ.y;
-        XYZ.z -= other.XYZ.z;
-        return *this;
-    }
-    Vector operator - (const Vector& other){
-        Vector temp = *this;
-        temp -= other;
-        return temp;
-    }
-    Vector& operator *= (const double& k){
-        XYZ.x *= k;
-        XYZ.y *= k;
-        XYZ.z *= k;
-        return *this;
-    }
-    Vector operator * (const double& k){
-        Vector temp = *this;
-        temp *= k;
-        return temp;
-    }
-    double operator * (const Vector& other){
-        return XYZ.x * other.XYZ.x + XYZ.y * other.XYZ.y + XYZ.z * other.XYZ.z;
-    }
-    Vector VecProd(const Vector& other){
-        Vector ans;
-        ans.XYZ.x = this->XYZ.y * other.XYZ.z - this->XYZ.z * other.XYZ.y;
-        ans.XYZ.y = -1 * (this->XYZ.x * other.XYZ.z - this->XYZ.z * other.XYZ.x);
-        ans.XYZ.z = this->XYZ.x * other.XYZ.y - this->XYZ.y * other.XYZ.x;
-        return ans;
-    }
-    double MixProd(const Vector& other1, const Vector& other2){
-        return (*this).VecProd(other1) * other2;
-    }
-
-    bool operator > (Vector& other){
-        return (*this).Len() > other.Len();
-    }
-    bool operator < (Vector& other){
-        return (*this).Len() < other.Len();
-    }
-    bool operator == (Vector& other){
-        return (*this).Len() == other.Len();
-    }
-
-    bool Colinear(const Vector& other){
-        Vector Null;
-        return ((*this).VecProd(other) == Null);
-    }
-    bool Complanar(const Vector& other1, const Vector& other2){
-        return (*this).MixProd(other1, other2) == 0;
-    }
-
-    double Angle(Vector& other){
-        return std::cos((*this * other) / ((*this).Len() * other.Len()));
-    }
-    Vector Norm(){
-        Vector temp = *this;
-        double k = (*this).Len();
-        if (k != 0)
-            temp *= 1/k;
-        return temp;
-    }
-
-    friend std::ostream& operator << (std::ostream& out, Vector& other);
-    friend std::istream& operator >> (std::istream& in, Vector& other);
-
-    ~Vector() {}
-};
-
-std::wostream& operator << (std::wostream& out, Vector& other)
-{
-    return out << other.GetX() << " " << other.GetY() << " " << other.GetZ();
-}
-
-std::wistream& operator >> (std::wistream& in, Vector& other)
-{
-    double x, y, z;
-    in >> x >> y >> z;
-    other = { x,y,z };
-    return in;
-}
-
-void VecInput(Vector& x, char name,const int & style) {
-
-    if (style == 1){
-        Dot A,Z{0,0,0};
-        wcout << L"Введите компоненты вектора "<< name << endl;
-        wcin >> A.x >> A.y >> A.z;
-        x=Vector(Z,A);
-    }
-    else{
-        Dot A,B;
-        wcout << L"Введите координаты 1 точки вектора "<< name << endl;
-        wcin >> A.x >> A.y >> A.z;
-        wcout << L"Введите координаты 2 точки вектора "<< name << endl;
-        wcin >> B.x >> B.y >> B.z;
-        x=Vector(A,B);
+    void radixsort(int m[], int n) {
+        int max = getMax(m, n);
+        for (int place = 1; max / place > 0; place *= 10)
+            countingSort(m, n, place);
     }
 }
-
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
     _setmode(_fileno(stdin),  _O_U16TEXT);
     _setmode(_fileno(stderr), _O_U16TEXT);
 
-    int lab_num;
-    wcout << L"Выберете лабораторную" << endl;
+    int n, lab_num;
+    wcout << L"Введите длинну масива:" ;
+    wcin >> n;
+    std::uniform_int_distribution<int> dist(1,n);
+
+    int mas[n];
+    wcout << L"Случайный масив:" <<endl;
+    for(int i = 0; i <n;i++){
+        mas[i] = dist(rd);
+        wcout << mas[i] << " ";
+    }
+    wcout << endl;
+    wcout << L"Выберете сортировку" << endl;
     wcin >> lab_num;
     switch (lab_num) {
         case(1): {
-            wcout << L"Не тот файл";
+            wcout << L"Не тот файл" << endl;
+            break;
         }
         case(4): {
-            int n, step, temp;
-            std::random_device rd;
+            wcout << L"Методом прочесывания" << endl;
 
-            wcout << L"Введите длинну масива:" ;
-            wcin >> n;
-            std::uniform_int_distribution<int> dist(1,n);
-            step = n - 1;
-
-            vector<int> v(n);
-            wcout << L"Случайный масив:" <<endl;
-            for(int i = 0; i <n;i++){
-                v[i] = dist(rd);
-                wcout << v[i] << " ";
-            }
-            wcout << endl;
+            int step, temp;
 
             while (step > 0){
                 for (int i =0; i + step < n; i++)
@@ -237,23 +127,10 @@ int main()
             for(int i = 0; i <n;i++){
                 wcout << v[i] << " ";
             }
-            return 0;
+            break;
         }
         case(5): {
-            int n;
-            std::random_device rd;
-
-            wcout << L"Введите длинну масива:" ;
-            wcin >> n;
-            std::uniform_int_distribution<int> dist(1,n);
-
-            vector<int> v(n);
-            wcout << L"Случайный масив:" <<endl;
-            for(int i = 0; i <n;i++){
-                v[i] = dist(rd);
-                wcout << v[i] << " ";
-            }
-            wcout << endl;
+            wcout << L"Вставками" << endl;
 
             for(int i=1;i<n;i++)
                 for(int j=i;j>0 && v[j-1]>v[j];j--)
@@ -262,24 +139,12 @@ int main()
             wcout << L"Сортированный масив:" <<endl;
             for(int i = 0; i <n;i++)
                 wcout << v[i] << " ";
-            return 0;
+            break;
         }
         case(6): {
-            int mini, n;
-            std::random_device rd;
+            wcout << L"Посредством выбора" << endl;
 
-            wcout << L"Введите длинну масива:" ;
-            wcin >> n;
-            std::uniform_int_distribution<int> dist(1,n);
-
-            vector<int> v(n);
-            wcout << L"Случайный масив:" <<endl;
-            for(int i = 0; i <n;i++){
-                v[i] = dist(rd);
-                wcout << v[i] << " ";
-            }
-            wcout << endl;
-
+            int mini;
             for (int i=0; i<n-1; i++){
                 mini=i;
                 for (int j=i+1; j<n; j++){
@@ -293,9 +158,45 @@ int main()
             wcout << L"Сортированный масив:" <<endl;
             for(int i = 0; i <n;i++)
                 wcout << v[i] << " ";
-            return 0;
+            break;
         }
-        default: WrongInput break;
+        case(7): {
+            wcout << L"Шелла" << endl;
+            vector d {1,4,10,23,57,132,301,701,1750};
+
+            if(n >4000){
+                for (int s = n / 2; s > 0; s /= 2)
+                    for (int i = s; i != n; ++i)
+                        for (int j = i - s; j >= 0 && v[j] > v[j + s]; j -= s)
+                            swap(v[j], v[j + s]);
+            }
+            else {
+                int step = d.size()-1;
+                while (d[step] > n) step--;
+
+                for (; step != 0; step--) {
+                    for (int i = step; i != n; ++i)
+                        for (int j = i - step; j >= 0; j -= step)
+                            if (v[j] > v[j + step]) swap(v[j], v[j + step]);
+                }
+            }
+            wcout << L"Сортированный масив:" <<endl;
+            for(int i = 0; i <n;i++)
+                wcout << v[i] << " ";
+            break;
+        }
+        case(8):{
+            wcout << L"Поразрядная" << endl;
+            eight::radixsort(mas, n);
+
+            wcout << L"Сортированный масив:" <<endl;
+            for(int i = 0; i <n;i++)
+                wcout << mas[i] << " ";
+            break;
+        }
+        default:
+            WrongInput;
+            break;
     }
     return 0;
 }
