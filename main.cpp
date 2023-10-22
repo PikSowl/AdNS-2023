@@ -1,4 +1,5 @@
 ﻿#define WrongInput wcout << L"Неверная команда" << endl
+#define Output wcout << L"Сортированный масив:" <<endl;for(int i = 0; i <n;i++) wcout << mas[i] << " "; break
 
 /*колекция лабораторных работ по Алгоритмам и структурам данных
  + -> выполнено
@@ -10,8 +11,8 @@
  №6 + Посредством выбора
  №7 + Шелла
  №8 + Поразрядная
- №9   Пирамидальная (heap sort)
- №10  Слиянием
+ №9 + Пирамидальная (heap sort)
+ №10+ Слиянием
  №11  Быстрая
  №12  Внешняя многофазная
  №13  Хеш-таблица “с наложением”
@@ -21,7 +22,7 @@
  №17  Операции над БНП: поиск, добавление, удаление
 */
 #include <iostream>
-#include <vector>
+#include <math.h>
 #include <algorithm>
 #include <random>
 #include <io.h>
@@ -34,53 +35,148 @@ using std::endl;
 using std::string;
 using std::vector;
 
-namespace eight {
-    int getMax(int m[], int n) {
-        int max = m[0];
-        for (int i = 1; i < n; i++)
-            if (m[i] > max)
-                max = m[i];
-        return max;
+namespace seven {
+    int d[] = {1,4,10,23,57,132,301,701,1750};
+    void CiuraSort(int mas[], int n) {
+        int sNum = 8;
+        while (d[sNum] > n) sNum--;
+
+        for (; sNum != 0; sNum--) {
+            for (int i = sNum; i != n; ++i)
+                for (int j = i - sNum; j >= 0; j -= sNum)
+                    if (mas[j] > mas[j + sNum]) swap(mas[j], mas[j + sNum]);
+        }
     }
+    void SedgewickSort(int mas[], int n) {
+        int f[100];
+        int sNum = 0;
+        for(; f[sNum] < n; sNum++)
+            f[sNum] = pow(4,sNum)+ 3*pow(2,sNum - 1) + 1;
 
-    void countingSort(int m[], int n, int place) {
-        const int iLen = 10;
+
+        for (; sNum != 0; sNum--) {
+            for (int i = sNum; i != n; ++i)
+                for (int j = i - sNum; j >= 0; j -= sNum)
+                    if (mas[j] > mas[j + sNum]) swap(mas[j], mas[j + sNum]);
+        }
+    }
+}
+namespace eight {
+    void countingSort(int mas[], int n, int place) {
+        const int intLen = 10;
         int output[n];
-        int count[iLen];
+        int count[intLen];
 
-        for (int i = 0; i < iLen; ++i)
-            count[i] = 0;
+        for (int i = 0; i < intLen; ++i) count[i] = 0;
 
-        for (int i = 0; i < n; i++)
-            count[(m[i] / place) % 10]++;
-        for (int i =0; i < iLen; i++)
-            wcout << count[i] << " ";
+        for (int i = 0; i < n; i++) count[(mas[i] / place) % 10]++;
+
+        for (int i =0; i < intLen; i++) wcout << count[i] << " ";
         wcout << endl;
 
-        for (int i = 1; i < iLen; i++)
-            count[i] += count[i - 1];
-        for (int i =0; i < iLen; i++)
-            wcout << count[i] << " ";
+        for (int i = 1; i < intLen; i++) count[i] += count[i - 1];
+
+        for (int i =0; i < intLen; i++) wcout << count[i] << " ";
         wcout << endl;
 
         for (int i = n - 1; i >= 0; i--) {
-            output[count[(m[i] / place) % 10] - 1] = m[i];
-            count[(m[i] / place) % 10]--;
+            output[count[(mas[i] / place) % 10] - 1] = mas[i];
+            count[(mas[i] / place) % 10]--;
         }
 
+        /*
         wcout << L"Проход" << endl;
         for (int i =0; i < n; i++)
             wcout << output[i] << " ";
         wcout << endl;
-
+        */
         for (int i = 0; i < n; i++)
-            m[i] = output[i];
+            mas[i] = output[i];
     }
 
-    void radixsort(int m[], int n) {
-        int max = getMax(m, n);
+    void radixsort(int mas[], int n) {
+        int max = mas[0];
+        for (int i = 1; i < n; i++)
+            if (mas[i] > max)
+                max = mas[i];
+
         for (int place = 1; max / place > 0; place *= 10)
-            countingSort(m, n, place);
+            countingSort(mas, n, place);
+    }
+}
+namespace nine {
+    void heapify(int mas[], int n, int i){
+        int largest = i;
+        int left = 2 * i + 1;
+        int right = 2 * i + 2;
+
+        if (left < n && mas[left] > mas[largest])
+            largest = left;
+        if (right < n && mas[right] > mas[largest])
+            largest = right;
+
+        if (largest != i) {
+            swap(mas[i], mas[largest]);
+            heapify(mas, n, largest);
+        }
+    }
+
+    void heapSort(int mas[], int n)
+    {
+        for (int i = n / 2 - 1; i >= 0; i--) {
+            heapify(mas, n, i);
+        }
+
+        for (int i = n - 1; i > 0; i--) {
+            swap(mas[0], mas[i]);
+            heapify(mas, i, 0);
+        }
+    }
+}
+namespace ten {
+    void merge(int mas[], int first, int cut, int last) {
+        int n1 = cut - first + 1;
+        int n2 = last - cut;
+        int L[n1], M[n2];
+
+        for (int i = 0; i < n1; i++)
+            L[i] = mas[first + i];
+        for (int j = 0; j < n2; j++)
+            M[j] = mas[cut + 1 + j];
+
+        int i = 0, j = 0, k = first;
+        while (i < n1 && j < n2) {
+            if (L[i] <= M[j]) {
+                mas[k] = L[i];
+                i++;
+            } else {
+                mas[k] = M[j];
+                j++;
+            }
+            k++;
+        }
+
+        while (i < n1) {
+            mas[k] = L[i];
+            i++;
+            k++;
+        }
+        while (j < n2) {
+            mas[k] = M[j];
+            j++;
+            k++;
+        }
+    }
+
+    void mergeSort(int mas[], int left, int right) {
+        if (left < right) {
+            int midle = left + (right - left) / 2;
+
+            mergeSort(mas, left, midle);
+            mergeSort(mas, midle + 1, right);
+
+            merge(mas, left, midle, right);
+        }
     }
 }
 int main()
@@ -111,24 +207,10 @@ int main()
         }
         case(4): {
             wcout << L"Методом прочесывания" << endl;
-
-            int step, temp;
-
-            while (step > 0){
-                for (int i =0; i + step < n; i++)
-                    if (mas[i] > mas[i + step]){
-                        temp = mas[i + step];
-                        mas[i + step] = mas[i];
-                        mas[i] = temp;
-                    }
-                step /= 1.3; //один раз не сработало, почему не понятно
-            }
-
-            wcout << L"Сортированный масив:" <<endl;
-            for(int i = 0; i <n;i++){
-                wcout << mas[i] << " ";
-            }
-            break;
+            for (int step = n - 1;step > 0;step /= 1.3)
+                for (int i = 0; i + step < n; i++)
+                    if (mas[i] > mas[i + step]) swap(mas[i], mas[i + step]);
+            Output;
         }
         case(5): {
             wcout << L"Вставками" << endl;
@@ -136,15 +218,10 @@ int main()
             for(int i=1;i<n;i++)
                 for(int j=i;j>0 && mas[j - 1] > mas[j]; j--)
                     swap(mas[j - 1], mas[j]);
-
-            wcout << L"Сортированный масив:" <<endl;
-            for(int i = 0; i <n;i++)
-                wcout << mas[i] << " ";
-            break;
+            Output;
         }
         case(6): {
             wcout << L"Посредством выбора" << endl;
-
             int mini;
             for (int i=0; i<n-1; i++){
                 mini=i;
@@ -155,45 +232,28 @@ int main()
                 if (mini!=i)
                     swap(mas[i], mas[mini]);
             }
-
-            wcout << L"Сортированный масив:" <<endl;
-            for(int i = 0; i <n;i++)
-                wcout << mas[i] << " ";
-            break;
+            Output;
         }
         case(7): {
             wcout << L"Шелла" << endl;
-            vector d {1,4,10,23,57,132,301,701,1750};
-
-            if(n >4000){
-                for (int s = n / 2; s > 0; s /= 2)
-                    for (int i = s; i != n; ++i)
-                        for (int j = i - s; j >= 0 && mas[j] > mas[j + s]; j -= s)
-                            swap(mas[j], mas[j + s]);
-            }
-            else {
-                int step = d.size()-1;
-                while (d[step] > n) step--;
-
-                for (; step != 0; step--) {
-                    for (int i = step; i != n; ++i)
-                        for (int j = i - step; j >= 0; j -= step)
-                            if (mas[j] > mas[j + step]) swap(mas[j], mas[j + step]);
-                }
-            }
-            wcout << L"Сортированный масив:" <<endl;
-            for(int i = 0; i <n;i++)
-                wcout << mas[i] << " ";
-            break;
+            if(n >4000) seven::SedgewickSort(mas, n);
+            else seven::CiuraSort(mas, n);
+            Output;
         }
-        case(8):{
+        case(8): {
             wcout << L"Поразрядная" << endl;
             eight::radixsort(mas, n);
-
-            wcout << L"Сортированный масив:" <<endl;
-            for(int i = 0; i <n;i++)
-                wcout << mas[i] << " ";
-            break;
+            Output;
+        }
+        case(9): {
+            wcout << L"Пирамидальная" << endl;
+            nine::heapSort(mas, n);
+            Output;
+        }
+        case(10): {
+            wcout << L"Слиянием" << endl;
+            ten::mergeSort(mas, 0, n-1);
+            Output;
         }
         default:
             WrongInput;
