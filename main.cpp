@@ -13,8 +13,8 @@
  №8 + Поразрядная
  №9 + Пирамидальная (heap sort)
  №10+ Слиянием
- №11  Быстрая
- №12  Внешняя многофазная
+ №11+ Быстрая
+ №12+ Внешняя многофазная
  №13  Хеш-таблица “с наложением”
  №14  Хеш-таблица “со списками”
  №15  Рекурсивные обходы (прямой, центральный, концевой)
@@ -27,12 +27,12 @@
 #include <random>
 #include <io.h>
 #include <fcntl.h>
+#include <bits/stdc++.h>
 
 using std::wcin;
 using std::wcout;
 using std::swap;
 using std::endl;
-using std::string;
 using std::vector;
 
 namespace seven {
@@ -179,6 +179,40 @@ namespace ten {
         }
     }
 }
+namespace eleven {
+
+    int randomPivot(int first, int last) {
+        std::random_device rd;
+        std::uniform_int_distribution<int> piv(first,last);
+        return piv(rd);
+    }
+
+    int partition(int mas[], int first, int last) {
+        int pivot = randomPivot(first, last);
+        int g = (first - 1);
+
+        for (int j = first; j < last; j++) {
+            if (mas[j] <= pivot) {
+                g++;
+                swap(mas[g], mas[j]);
+            }
+        }
+
+        swap(mas[g + 1], mas[last]);
+        return (g + 1);
+    }
+
+    void quickSort(int mas[], int first, int last) {
+        if (first < last) {
+            int mid = partition(mas, first, last);
+
+            quickSort(mas, first, mid - 1);
+            quickSort(mas, mid + 1, last);
+        }
+    }
+}
+
+
 int main()
 {
     _setmode(_fileno(stdout), _O_U16TEXT);
@@ -186,7 +220,7 @@ int main()
     _setmode(_fileno(stderr), _O_U16TEXT);
 
     int n, lab_num;
-    wcout << L"Введите длинну масива:" ;
+    wcout << L"Введите длинну масива:";
     wcin >> n;
     std::random_device rd;
     std::uniform_int_distribution<int> dist(1,n);
@@ -198,7 +232,7 @@ int main()
         wcout << mas[i] << " ";
     }
     wcout << endl;
-    wcout << L"Выберете сортировку" << endl;
+    wcout << L"Выберете сортировку:";
     wcin >> lab_num;
     switch (lab_num) {
         case(1): {
@@ -253,6 +287,11 @@ int main()
         case(10): {
             wcout << L"Слиянием" << endl;
             ten::mergeSort(mas, 0, n-1);
+            Output;
+        }
+        case (11): {
+            wcout << L"Быстрая" << endl;
+            eleven::quickSort(mas, 0, n-1);
             Output;
         }
         default:
